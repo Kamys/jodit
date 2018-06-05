@@ -4,10 +4,10 @@
  * Copyright 2013-2018 Valeriy Chupurnov https://xdsoft.net
  */
 
-import {Jodit} from '../Jodit';
-import {Config} from '../Config'
+import { Jodit } from '../Jodit';
+import { Config } from '../Config'
 import * as consts from '../constants'
-import {$$, css, debounce, dom, innerWidth, isIE, offset} from '../modules/Helpers'
+import { $$, css, debounce, dom, innerWidth, isIE, offset } from '../modules/Helpers'
 
 /**
  * The module creates a supporting frame for resizing of the elements img and table
@@ -221,11 +221,9 @@ export function resizer(editor: Jodit) {
                     }
                 })
                 .on(element, 'mousedown touchstart', () => {
-
                     if (!resizeElementClicked) {
                         resizeElementClicked = true;
                         currentElement = element;
-
                         showResizer();
 
                         if (currentElement.tagName === 'IMG' && !(<HTMLImageElement>currentElement).complete) {
@@ -387,14 +385,18 @@ export function resizer(editor: Jodit) {
             }
 
             if (!editor.isDestructed) {
-                $$('img, table, iframe', editor.editor).forEach((elm: HTMLElement) => {
+                $$('img, table, iframe, a', editor.editor).forEach((elm: HTMLElement) => {
                     if (editor.getMode() === consts.MODE_SOURCE) {
                         return;
                     }
-                    if (!(<any>elm)['__jodit_resizer_binded'] && ((elm.tagName === 'IFRAME' && editor.options.useIframeResizer) || (elm.tagName === 'IMG' && editor.options.useImageResizer) || (elm.tagName === 'TABLE' && editor.options.useTableResizer))) {
-                        (<any>elm)['__jodit_resizer_binded'] = true;
-                        bind(elm);
-                    }
+                  if (!(<any>elm)['__jodit_resizer_binded']
+                    && ((elm.tagName === 'IFRAME' && editor.options.useIframeResizer)
+                      || (elm.tagName === 'IMG' && editor.options.useImageResizer)
+                      || (elm.tagName === 'A')
+                      || (elm.tagName === 'TABLE' && editor.options.useTableResizer))) {
+                    (<any>elm)['__jodit_resizer_binded'] = true;
+                    bind(elm);
+                  }
                 });
             }
         }, editor.defaultTimeout));
