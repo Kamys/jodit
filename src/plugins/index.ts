@@ -19,6 +19,7 @@ export {fullsize} from "./fullsize";
 export {iframe} from "./iframe";
 export {indent} from "./indent";
 export {imageProcessor} from "./imageProcessor";
+export {buttonProcessor} from "./buttonProcessor";
 export {imageProperties} from "./imageProperties";
 export {inlinePopup} from "./inline-popup";
 export {justify} from "./justify";
