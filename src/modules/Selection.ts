@@ -6,7 +6,7 @@
 
 import * as consts from '../constants';
 import {Component} from './Component';
-import {each, dom, trim, $$, css, normilizeCSSValue, isIE, isPlainObject, normalizeNode} from './Helpers';
+import { each, dom, trim, $$, css, normilizeCSSValue, isIE, isPlainObject, normalizeNode, isHTML } from './Helpers';
 import {Dom} from "./Dom";
 import {Jodit} from "../Jodit";
 import {INVISIBLE_SPACE_REG_EXP_END, INVISIBLE_SPACE_REG_EXP_START} from "../constants";
@@ -427,7 +427,7 @@ export class Select extends Component{
             return;
         }
 
-        if (typeof html  === 'string') {
+        if (typeof html  === 'string' && !isHTML(html)) {
           html = this.replaceAll(html, '\n', '<br>');
         }
 
