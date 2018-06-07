@@ -408,6 +408,10 @@ export class Select extends Component{
         }
     }
 
+  replaceAll(str: string, find: string, replace: string) {
+    return str.replace(new RegExp(find, 'g'), replace);
+  }
+
 
     /**
      * Inserts in the current cursor position some HTML snippet
@@ -421,6 +425,10 @@ export class Select extends Component{
     insertHTML(html: number | string | Node) {
         if (html === '') {
             return;
+        }
+
+        if (typeof html  === 'string') {
+          html = this.replaceAll(html, '\n', '<br>');
         }
 
         const node: HTMLDivElement = this.jodit.editorDocument.createElement('div'),
