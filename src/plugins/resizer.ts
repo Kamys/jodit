@@ -392,7 +392,6 @@ export function resizer(editor: Jodit) {
                   if (!(<any>elm)['__jodit_resizer_binded']
                     && ((elm.tagName === 'IFRAME' && editor.options.useIframeResizer)
                       || (elm.tagName === 'IMG' && editor.options.useImageResizer)
-                      || (elm.tagName === 'A')
                       || (elm.tagName === 'TABLE' && editor.options.useTableResizer))) {
                     (<any>elm)['__jodit_resizer_binded'] = true;
                     bind(elm);
