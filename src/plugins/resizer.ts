@@ -341,11 +341,19 @@ export function resizer(editor: Jodit) {
 
                         if (new_h > editor.options.resizer.min_height) {
                             currentElement.style.height = new_h + 'px';
+                          if (currentElement.tagName === 'A') {
+                            let newPaddingTop = `${(new_h / 2) - 20}px`;
+                            currentElement.style.paddingTop = newPaddingTop;
+                            console.log({newPaddingTop, inComponent: currentElement.style.paddingTop})
+                          }
                         }
 
+                        console.log(currentElement.style.paddingTop);
                         updateSize();
+                      console.log(currentElement.style.paddingTop);
 
                         showSizeViewer(currentElement.offsetWidth, currentElement.offsetHeight);
+                      console.log(currentElement.style.paddingTop);
 
                         e.stopImmediatePropagation();
                     }
@@ -392,6 +400,7 @@ export function resizer(editor: Jodit) {
                   if (!(<any>elm)['__jodit_resizer_binded']
                     && ((elm.tagName === 'IFRAME' && editor.options.useIframeResizer)
                       || (elm.tagName === 'IMG' && editor.options.useImageResizer)
+                      || (elm.tagName === 'A')
                       || (elm.tagName === 'TABLE' && editor.options.useTableResizer))) {
                     (<any>elm)['__jodit_resizer_binded'] = true;
                     bind(elm);
