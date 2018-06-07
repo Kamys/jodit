@@ -342,9 +342,7 @@ export function resizer(editor: Jodit) {
                         if (new_h > editor.options.resizer.min_height) {
                             currentElement.style.height = new_h + 'px';
                           if (currentElement.tagName === 'A') {
-                            let newPaddingTop = `${(new_h / 2) - 20}px`;
-                            currentElement.style.paddingTop = newPaddingTop;
-                            console.log({newPaddingTop, inComponent: currentElement.style.paddingTop})
+                            currentElement.style.lineHeight = currentElement.style.height;
                           }
                         }
 
