@@ -62,17 +62,17 @@ export function paste(editor: Jodit) {
 
         const keep: HTMLAnchorElement  = <HTMLAnchorElement>dom(
             '<a href="javascript:void(0)" style="float:left;" class="jodit_button">' +
-            '<span>' + editor.i18n('Keep') + '</span>' +
+            '<span> Insert as HTML </span>' +
             '</a>',
             dialog.document
         );
 
-        const clear: HTMLAnchorElement  = <HTMLAnchorElement>dom(
+        /*const clear: HTMLAnchorElement  = <HTMLAnchorElement>dom(
             '<a href="javascript:void(0)" style="float:left;" class="jodit_button">' +
             '<span>' + editor.i18n(clearButton) + '</span>' +
             '</a>',
             dialog.document
-        );
+        );*/
 
         const clear2: HTMLAnchorElement  = <HTMLAnchorElement>dom(
             '<a href="javascript:void(0)" style="float:left;" class="jodit_button">' +
@@ -93,10 +93,10 @@ export function paste(editor: Jodit) {
             callback && callback(true);
         });
 
-        editor.events.on(clear, 'click', () => {
+        /*editor.events.on(clear, 'click', () => {
             dialog.close();
             callback && callback(false);
-        });
+        });*/
         editor.events.on(clear2, 'click', () => {
             dialog.close();
             callback && callback(0);
@@ -108,7 +108,7 @@ export function paste(editor: Jodit) {
 
         dialog.setFooter([
             keep,
-            clear,
+            /*clear,*/
             clear2Button ? clear2 : '',
             cancel,
         ]);
