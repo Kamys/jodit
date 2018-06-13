@@ -7,10 +7,10 @@
 import {Jodit} from '../Jodit';
 import {Config} from '../Config'
 import {isURL, convertMediaURLToVideoEmbed, dom, val} from '../modules/Helpers'
-import {Dom} from "../modules/Dom";
-import {ControlType} from "../modules/ToolbarCollection";
-import {markerInfo} from "../modules/Selection";
-import {Select} from "../modules/Selection";
+import {Dom} from '../modules/Dom';
+import { ControlType, state } from '../modules/ToolbarCollection';
+import {markerInfo} from '../modules/Selection';
+import {Select} from '../modules/Selection';
 
 /**
 * @property {object}  link `{@link link|link}` plugin's options
@@ -21,7 +21,7 @@ import {Select} from "../modules/Selection";
 * @property {boolean} link.removeLinkAfterFormat=true When the button is pressed toWYSIWYG clean format, if it was done on the link is removed like command `unlink`
 */
 
-declare module "../Config" {
+declare module '../Config' {
     interface Config {
         link: {
             followOnDblClick: boolean;
@@ -58,6 +58,7 @@ Config.prototype.controls.link = <ControlType> {
         return current && Dom.closest(current, 'a', editor.editor) !== false;
     },
     popup: (editor: Jodit, current: HTMLElement|false, self: ControlType, close: Function) => {
+      state.isInsertLinc = true;
         const sel: Selection = editor.editorWindow.getSelection(),
             form: HTMLFormElement = <HTMLFormElement>dom(
                 '<form class="jodit_form">' +
@@ -117,6 +118,7 @@ Config.prototype.controls.link = <ControlType> {
                 editor.selection.restore(selInfo);
                 close();
                 e.preventDefault();
+              state.isInsertLinc = false;
             });
         }
 
@@ -153,13 +155,13 @@ Config.prototype.controls.link = <ControlType> {
             }
 
             close();
-            return false;
+          state.isInsertLinc = false;
+          return false;
         });
-
         return form;
     },
-    tags: ["a"],
-    tooltip: "Insert link"
+    tags: ['a'],
+    tooltip: 'Insert link'
 };
 
 /**
