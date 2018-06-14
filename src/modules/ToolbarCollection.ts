@@ -313,7 +313,9 @@ export  class ToolbarPopup extends ToolbarElement {
                 this.container.parentNode.removeChild(this.container);
             }
             if (this.jodit.selection) {
-                this.jodit.selection.removeMarkers();
+              if(!state.isInsertLinc) {
+                  this.jodit.selection.removeMarkers();
+              }
             }
         }
     }
@@ -920,3 +922,5 @@ export class ToolbarCollection extends ToolbarElement {
         this.clear();
     }
 }
+
+export let state = {isInsertLinc: false};

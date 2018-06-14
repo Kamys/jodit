@@ -8,7 +8,7 @@ import {Jodit} from '../Jodit';
 import {Config} from '../Config'
 import {isURL, convertMediaURLToVideoEmbed, dom, val} from '../modules/Helpers'
 import {Dom} from "../modules/Dom";
-import {ControlType} from "../modules/ToolbarCollection";
+import {ControlType, state} from "../modules/ToolbarCollection";
 import {markerInfo} from "../modules/Selection";
 import {Select} from "../modules/Selection";
 
@@ -58,6 +58,7 @@ Config.prototype.controls.link = <ControlType> {
         return current && Dom.closest(current, 'a', editor.editor) !== false;
     },
     popup: (editor: Jodit, current: HTMLElement|false, self: ControlType, close: Function) => {
+      state.isInsertLinc = true;
         const sel: Selection = editor.editorWindow.getSelection(),
             form: HTMLFormElement = <HTMLFormElement>dom(
                 '<form class="jodit_form">' +
@@ -153,6 +154,7 @@ Config.prototype.controls.link = <ControlType> {
             }
 
             close();
+            state.isInsertLinc = false;
             return false;
         });
 
