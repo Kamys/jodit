@@ -5,12 +5,11 @@
  */
 
 import * as consts from '../constants';
-import {Component} from './Component';
-import { each, dom, trim, $$, css, normilizeCSSValue, isIE, isPlainObject, normalizeNode, isHTML } from './Helpers';
-import {Dom} from "./Dom";
-import {Jodit} from "../Jodit";
-import {INVISIBLE_SPACE_REG_EXP_END, INVISIBLE_SPACE_REG_EXP_START} from "../constants";
-import {INVISIBLE_SPACE} from "../constants";
+import { INVISIBLE_SPACE, INVISIBLE_SPACE_REG_EXP_END, INVISIBLE_SPACE_REG_EXP_START } from '../constants';
+import { Component } from './Component';
+import { $$, dom, each, isHTML, isIE } from './Helpers';
+import { Dom } from './Dom';
+import { Jodit } from '../Jodit';
 
 export type markerInfo = {
     startId: string,
@@ -813,33 +812,35 @@ export class Select extends Component{
      * Apply some css rules for all selections. It method wraps selections in nodeName tag.
      *
      * @param {object} cssRules
+     * @param nodeName
+     * @param options
      */
-    applyCSS = (cssRules?: any, nodeName:string = 'span', options?: Function | {[key: string]: string | string[]} | {[key: string]: (editor: Jodit, elm: HTMLElement) => boolean}) => {
+    applyCSS = (cssRules?: any, nodeName: string = 'span', options?: any) => {
         console.log(cssRules);
-        if(cssRules['font-weight'] === 'bold') {
+        if (cssRules['font-weight'] === 'bold') {
             document.execCommand('bold', false, '');
             return;
         }
-        if(cssRules['text-decoration'] === 'line-through'){
+        if (cssRules['text-decoration'] === 'line-through') {
             document.execCommand('strikeThrough', false, '');
             return;
         }
-        if(cssRules['text-decoration'] === 'underline'){
+        if (cssRules['text-decoration'] === 'underline') {
             document.execCommand('underline', false, '');
             return;
         }
-        if(cssRules['font-style'] === 'italic'){
+        if (cssRules['font-style'] === 'italic') {
             document.execCommand('italic', false, '');
             return;
         }
-        if(cssRules['fontSize']){
+        if (cssRules['fontSize']) {
             setSize(cssRules['fontSize']);
         }
-        if(cssRules['color']) {
-            document.execCommand("foreColor", false, cssRules['color']);
+        if (cssRules['color']) {
+            document.execCommand('foreColor', false, cssRules['color']);
         }
-        if(cssRules['backgroundColor']) {
-            document.execCommand("BackColor", false, cssRules['backgroundColor']);
+        if (cssRules['backgroundColor']) {
+            document.execCommand('BackColor', false, cssRules['backgroundColor']);
         }
     };
 }
