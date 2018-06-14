@@ -76,8 +76,8 @@ Config.prototype.controls.brush = <ControlType>{
 
         if (editor.options.colorPickerDefaultTab === 'background') {
             tabs = {
-                Background : backgroundTag,
-                Text : colorTab
+                Text : colorTab,
+                Background : backgroundTag
             };
         } else {
             tabs = {

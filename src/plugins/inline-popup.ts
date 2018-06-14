@@ -186,8 +186,8 @@ Config.prototype.popup = <{[key: string]: Array<ControlType|string>}>{
                 }, br_color);
 
                 $tab = TabsWidget(editor, {
-                    Background : $bg,
                     Text : $cl,
+                    Background : $bg,
                     Border : $br,
                 });
 

@@ -813,174 +813,38 @@ export class Select extends Component{
      * Apply some css rules for all selections. It method wraps selections in nodeName tag.
      *
      * @param {object} cssRules
-     * @param {string} nodeName
-     * @param {object} options
      */
-    applyCSS = (cssRules ?: {[key:string]: string | number | undefined}, nodeName:string = 'span', options?: Function | {[key: string]: string | string[]} | {[key: string]: (editor: Jodit, elm: HTMLElement) => boolean}) => {
-        const WRAP: number  = 1;
-        const UNWRAP: number  = 0;
-
-        let mode: number;
-
-        const defaultTag: string = 'SPAN';
-        const FONT: string = 'FONT';
-
-        const findNextCondition = (elm: Node | null): boolean => (elm !== null && !Dom.isEmptyTextNode(elm) && !this.isMarker(<HTMLElement>elm));
-
-        const checkCssRulesFor = (elm: HTMLElement): boolean => {
-            return elm.nodeName !== FONT &&
-                elm.nodeType === Node.ELEMENT_NODE &&
-                (
-                    (
-                        isPlainObject(options) &&
-                        each(<object>options, (cssPropertyKey: string, cssPropertyValues: string[]) => {
-                                    const value = css(elm, cssPropertyKey, void(0), true);
-                            return  value !== null && value !== '' && cssPropertyValues.indexOf(value.toString().toLowerCase()) !== -1;
-                        }) !== false
-                    ) ||
-                    (
-                        typeof options === 'function' && options(this.jodit, elm)
-                    )
-                );
-        };
-
-        const isSuitElement = (elm: HTMLElement): boolean => {
-            const reg: RegExp = new RegExp('^' + elm.nodeName + '$', 'i');
-            return (reg.test(nodeName) || !!(options && checkCssRulesFor(elm))) && findNextCondition(elm);
-        };
-
-        const toggleStyles =  (elm: HTMLElement) => {
-            if (isSuitElement(elm)) {
-                // toggle CSS rules
-                if (elm.nodeName === defaultTag && cssRules) {
-                    Object.keys(cssRules).forEach((rule: string) => {
-                        if (mode === UNWRAP || css(elm, rule) == normilizeCSSValue(rule, <string>cssRules[rule])) {
-                            css(elm, rule, '');
-                            if (mode === undefined) {
-                                mode = UNWRAP;
-                            }
-                        } else {
-                            css(elm, rule, cssRules[rule]);
-                            if (mode === undefined) {
-                                mode = WRAP;
-                            }
-                        }
-                    });
-                }
-
-                if (!Dom.isBlock(elm) && (!elm.getAttribute('style') || elm.nodeName !== defaultTag)) {
-                    Dom.unwrap(elm); // toggle `<strong>test</strong>` toWYSIWYG `test`, and `<span style="">test</span>` toWYSIWYG `test`
-                    if (mode === undefined) {
-                        mode = UNWRAP;
-                    }
-                }
-            }
-        };
-
-
-
-        if (!this.isCollapsed()) {
-            const selInfo: markerInfo[] = this.save();
-            normalizeNode(this.jodit.editor.firstChild); // FF fix for test "commandsTest - Exec command "bold" for some text that contains a few STRONG elements, should unwrap all of these"
-            this.jodit.editorDocument.execCommand('fontsize', false, 7);
-
-            $$('font[size="7"]', this.jodit.editor).forEach((font: HTMLElement) => {
-                if (!Dom.next(font, findNextCondition, <HTMLElement>font.parentNode) && !Dom.prev(font, findNextCondition, <HTMLElement>font.parentNode) && isSuitElement(<HTMLElement>font.parentNode) && font.parentNode !== this.jodit.editor && (!Dom.isBlock(font.parentNode) || consts.IS_BLOCK.test(nodeName))) {
-                    toggleStyles(<HTMLElement>font.parentNode);
-                } else if (font.firstChild && !Dom.next(font.firstChild, findNextCondition, <HTMLElement>font) && !Dom.prev(font.firstChild, findNextCondition, <HTMLElement>font) && isSuitElement(<HTMLElement>font.firstChild)) {
-                    toggleStyles(<HTMLElement>font.firstChild);
-                } else if (Dom.closest(font, isSuitElement, this.jodit.editor)) {
-                    const leftRange: Range = this.jodit.editorDocument.createRange(),
-                        wrapper: HTMLElement = <HTMLElement>Dom.closest(font, isSuitElement, this.jodit.editor);
-
-                    leftRange.setStartBefore(wrapper);
-                    leftRange.setEndBefore(font);
-
-                    const leftFragment: DocumentFragment = leftRange.extractContents();
-
-                    if ((!leftFragment.textContent || !trim(leftFragment.textContent).length) && leftFragment.firstChild) {
-                        Dom.unwrap(leftFragment.firstChild);
-                    }
-
-                    if (wrapper.parentNode) {
-                        wrapper.parentNode.insertBefore(leftFragment, wrapper);
-                    }
-
-                    leftRange.setStartAfter(font);
-                    leftRange.setEndAfter(wrapper);
-                    const rightFragment = leftRange.extractContents();
-
-                    // case then marker can be inside fragnment
-                    if ((!rightFragment.textContent || !trim(rightFragment.textContent).length) && rightFragment.firstChild) {
-                        Dom.unwrap(rightFragment.firstChild);
-                    }
-
-                    Dom.after(wrapper, rightFragment);
-
-                    toggleStyles(wrapper);
-
-                } else {
-
-                    // unwrap all suit elements inside
-                    const needUnwrap: Node[] = [];
-                    let firstElementSuit: boolean|undefined = undefined;
-
-                    if (font.firstChild) {
-                        Dom.find(font.firstChild, (elm: Node | null) => {
-                            if (elm && isSuitElement(<HTMLElement>elm)) {
-                                if (firstElementSuit === undefined) {
-                                    firstElementSuit = true;
-                                }
-                                needUnwrap.push(elm);
-                            } else {
-                                if (firstElementSuit === undefined) {
-                                    firstElementSuit = false;
-                                }
-                            }
-                            return false;
-                        }, font, true);
-                    }
-
-                    needUnwrap.forEach(Dom.unwrap);
-
-                    if (!firstElementSuit) {
-                        if (mode === undefined) {
-                            mode = WRAP;
-                        }
-                        if (mode === WRAP) {
-                            css(Dom.replace(font, nodeName, false, false, this.jodit.editorDocument), (cssRules && nodeName.toUpperCase() === defaultTag) ? cssRules : {});
-                        }
-                    }
-                }
-
-                if (font.parentNode) {
-                    Dom.unwrap(font);
-                }
-            });
-
-            this.restore(selInfo);
-        } else {
-
-            let clearStyle: boolean = false;
-            if (this.current() && Dom.closest(<Node>this.current(), nodeName, this.jodit.editor)) {
-                clearStyle = true;
-                const closest: Node = <Node>Dom.closest(<Node>this.current(), nodeName, this.jodit.editor);
-                if (closest) {
-                    this.setCursorAfter(closest);
-                }
-            }
-
-            if (nodeName.toUpperCase() === defaultTag || !clearStyle) {
-                const node: Node = this.jodit.editorDocument.createElement(nodeName);
-                node.appendChild(this.jodit.editorDocument.createTextNode(consts.INVISIBLE_SPACE));
-
-                this.insertNode(node, false, false);
-                if (nodeName.toUpperCase() === defaultTag && cssRules) {
-                    css(<HTMLElement>node, cssRules);
-                }
-
-                this.setCursorIn(node);
-            }
+    applyCSS = (cssRules?: any, nodeName:string = 'span', options?: Function | {[key: string]: string | string[]} | {[key: string]: (editor: Jodit, elm: HTMLElement) => boolean}) => {
+        console.log(cssRules);
+        if(cssRules['font-weight'] === 'bold') {
+            document.execCommand('bold', false, '');
+            return;
+        }
+        if(cssRules['text-decoration'] === 'line-through'){
+            document.execCommand('strikeThrough', false, '');
+            return;
+        }
+        if(cssRules['text-decoration'] === 'underline'){
+            document.execCommand('underline', false, '');
+            return;
+        }
+        if(cssRules['font-style'] === 'italic'){
+            document.execCommand('italic', false, '');
+            return;
+        }
+        if(cssRules['fontSize']){
+            setSize(cssRules['fontSize']);
+        }
+        if(cssRules['color']) {
+            document.execCommand("foreColor", false, cssRules['color']);
+        }
+        if(cssRules['backgroundColor']) {
+            document.execCommand("BackColor", false, cssRules['backgroundColor']);
         }
     };
+}
+
+function setSize(size: string){
+    let container: HTMLElement = (window.getSelection() as any).focusNode.parentNode;
+    container.style.fontSize = size;
 }
