@@ -506,9 +506,7 @@ export class inlinePopup extends Plugin{
             .on(this.target,'mousedown keydown touchstart', (e: MouseEvent) => {
                 e.stopPropagation();
             })
-            .on('beforeOpenPopup hidePopup', ({...args}) => {
-              this.hidePopup(args as any);
-            })
+            .on('beforeOpenPopup hidePopup', this.hidePopup)
             .on('recalcPositionPopup', this.reCalcPosition)
             .on('getDiffButtons.mobile', (_toolbar: ToolbarCollection) : void | string[] => {
                 if (this.toolbar === _toolbar) {

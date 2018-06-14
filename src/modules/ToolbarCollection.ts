@@ -4,11 +4,11 @@
  * Copyright 2013-2018 Valeriy Chupurnov https://xdsoft.net
  */
 
-import { Component, IViewBased } from './Component';
-import { asArray, camelCase, css, debounce, dom, each, offset } from './Helpers';
-import * as consts from '../constants';
-import { Dom } from './Dom';
-import { Jodit } from '../Jodit';
+import {Component, IViewBased} from "./Component";
+import {asArray, camelCase, css, debounce, dom, each, offset} from "./Helpers";
+import * as consts from "../constants";
+import {Dom} from "./Dom";
+import {Jodit} from "../Jodit";
 
 
 export type ControlType = {
@@ -303,11 +303,7 @@ export  class ToolbarPopup extends ToolbarElement {
         if (!this.isOpened) {
             return;
         }
-      let child: any                         = current instanceof ToolbarPopup ? current.target : current;
-      if (isInsertLink(current)) {
-        return;
-      }
-      if (!current || !Dom.isOrContains(this.container, child as any)) {
+        if (!current || !Dom.isOrContains(this.container, current instanceof ToolbarPopup ? current.target : current)) {
             this.isOpened = false;
             this.jodit.events.off('closeAllPopups', this.close);
 
@@ -317,9 +313,7 @@ export  class ToolbarPopup extends ToolbarElement {
                 this.container.parentNode.removeChild(this.container);
             }
             if (this.jodit.selection) {
-              if(!state.isInsertLinc){
                 this.jodit.selection.removeMarkers();
-              }
             }
         }
     }
@@ -926,16 +920,3 @@ export class ToolbarCollection extends ToolbarElement {
         this.clear();
     }
 }
-
-export function isInsertLink(element: any): boolean{
-  let idBtnInsertLink = 'jodit_toolbar_btn jodit_toolbar_btn-link';
-  if(!element ){
-    return false;
-  }
-  if(element.className === idBtnInsertLink){
-    return true;
-  }
-  return element.target && element.target.className === idBtnInsertLink
-}
-
-export let state = {isInsertLinc: false};
