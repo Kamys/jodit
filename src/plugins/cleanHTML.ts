@@ -202,23 +202,35 @@ export function cleanHTML(editor: Jodit) {
         );
     };
 
+    function clearHTML(element: HTMLElement){
+        if(element.tagName.toLowerCase() === 'br'){
+            element.removeAttribute("style");
+        }
+        if(element.tagName.toLowerCase() === 'p'){
+            if(element.children.length === 1) {
+                let child = element.children[0];
+                if(child.tagName.toLowerCase()  === 'br' && element.textContent === ""){
+                    element.insertAdjacentHTML('afterend', '<br>');
+                    element.remove();
+                }
+            }
+        }
+    }
 
     editor.events
         .on('change afterSetMode afterInit mousedown keydown', debounce(() => {
             if (!editor.isDestructed && editor.isEditorMode()) {
                 current = editor.selection.current();
 
-                const element = document.querySelector('.jodit_wysiwyg');
-                if(element){
-                    const children = element.children;
-                    for (let i = 0; i < children.length; i++) {
-                        const child = children[i];
-                        if (!(child instanceof HTMLElement)) {
-                            return;
+                const wysiwyg = document.querySelector('.jodit_wysiwyg');
+                if(wysiwyg){
+                    const allElements = wysiwyg.getElementsByTagName('*');
+                    for (let i = 0; i < allElements.length; i++) {
+                        const element = allElements[i];
+                        if (!(element instanceof HTMLElement)) {
+                            break;
                         }
-                        if(child.tagName.toLowerCase() === 'br'.toLowerCase()){
-                            child.removeAttribute("style");
-                        }
+                        clearHTML(element);
                     }
                 }
 
