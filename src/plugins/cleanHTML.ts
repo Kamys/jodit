@@ -56,7 +56,7 @@ import { Select } from '../modules/Selection';
  * });
  * ```
  */
-declare module "../Config" {
+declare module '../Config' {
     interface Config {
         cleanHTML: {
             timeout: number;
@@ -64,9 +64,9 @@ declare module "../Config" {
             cleanOnPaste: boolean,
             fillEmptyParagraph: boolean,
             removeEmptyElements: boolean,
-            replaceOldTags: {[key:string]: string} | false,
-            allowTags: false | string | {[key:string]: string},
-            denyTags: false | string | {[key:string]: string}
+            replaceOldTags: { [key: string]: string } | false,
+            allowTags: false | string | { [key: string]: string },
+            denyTags: false | string | { [key: string]: string }
         }
     }
 }
@@ -103,20 +103,20 @@ export function cleanHTML(editor: Jodit) {
     }
 
     const
-        attributesReg = /([^\[]*)\[([^\]]+)]/,
-        seperator = /[\s]*,[\s]*/,
-        attrReg = /^(.*)[\s]*=[\s]*(.*)$/;
+      attributesReg = /([^\[]*)\[([^\]]+)]/,
+      seperator     = /[\s]*,[\s]*/,
+      attrReg       = /^(.*)[\s]*=[\s]*(.*)$/;
 
-    const getHash = (tags: false | string | {[key:string]: string}): {[key: string]: any} | false=> {
-        const tagsHash: {[key: string]: any} = {};
+    const getHash = (tags: false | string | { [key: string]: string }): { [key: string]: any } | false => {
+        const tagsHash: { [key: string]: any } = {};
 
         if (typeof tags === 'string') {
             tags.split(seperator).map((elm: string) => {
-                elm = trim(elm);
-                let attr: RegExpExecArray | null = attributesReg.exec(elm),
-                    allowAttributes: {[key: string]: string | boolean} = {},
-                    attributeMap = (attr: string) => {
-                        attr = trim(attr);
+                elm                                                      = trim(elm);
+                let attr: RegExpExecArray | null                         = attributesReg.exec(elm),
+                    allowAttributes: { [key: string]: string | boolean } = {},
+                    attributeMap                                         = (attr: string) => {
+                        attr                            = trim(attr);
                         const val: Array<string> | null = attrReg.exec(attr);
                         if (val) {
                             allowAttributes[val[1]] = val[2];
@@ -150,16 +150,16 @@ export function cleanHTML(editor: Jodit) {
     };
 
     let
-        current: Node | false,
-        allowTagsHash: {[key: string]: any} | false = getHash(editor.options.cleanHTML.allowTags),
-        denyTagsHash: {[key: string]: any} | false = getHash(editor.options.cleanHTML.denyTags);
+      current: Node | false,
+      allowTagsHash: { [key: string]: any } | false = getHash(editor.options.cleanHTML.allowTags),
+      denyTagsHash: { [key: string]: any } | false  = getHash(editor.options.cleanHTML.denyTags);
 
     const hasNotEmptyTextSibling = (node: Node, next = false): boolean => {
         let prev: Node | null = next ? node.nextSibling : node.previousSibling;
 
         while (prev) {
             if (
-                prev.nodeType === Node.ELEMENT_NODE || !Dom.isEmptyTextNode(prev)
+              prev.nodeType === Node.ELEMENT_NODE || !Dom.isEmptyTextNode(prev)
             ) {
                 return true;
             }
@@ -171,45 +171,45 @@ export function cleanHTML(editor: Jodit) {
 
     const isRemovableNode = (node: Node): boolean => {
         if (
-            node.nodeType !== Node.TEXT_NODE &&
-            (
-                (allowTagsHash && !allowTagsHash[node.nodeName]) ||
-                (denyTagsHash && denyTagsHash[node.nodeName])
-            )
+          node.nodeType !== Node.TEXT_NODE &&
+          (
+            (allowTagsHash && !allowTagsHash[node.nodeName]) ||
+            (denyTagsHash && denyTagsHash[node.nodeName])
+          )
         ) {
             return true;
         }
 
         // remove extra br
         if (
-            current &&
-            node.nodeName === 'BR' &&
-            hasNotEmptyTextSibling(node) &&
-            !hasNotEmptyTextSibling(node, true) &&
-            Dom.up(node, Dom.isBlock, editor.editor) !== Dom.up(current, Dom.isBlock, editor.editor)
+          current &&
+          node.nodeName === 'BR' &&
+          hasNotEmptyTextSibling(node) &&
+          !hasNotEmptyTextSibling(node, true) &&
+          Dom.up(node, Dom.isBlock, editor.editor) !== Dom.up(current, Dom.isBlock, editor.editor)
         ) {
             return true;
         }
 
         return (
-            editor.options.cleanHTML.removeEmptyElements &&
-            current !== false &&
-            node.nodeType === Node.ELEMENT_NODE &&
-            node.nodeName.match(IS_INLINE) !== null &&
-            !editor.selection.isMarker(node) &&
-            trim((<Element>node).innerHTML).length === 0 &&
-            !Dom.isOrContains(node, current)
+          editor.options.cleanHTML.removeEmptyElements &&
+          current !== false &&
+          node.nodeType === Node.ELEMENT_NODE &&
+          node.nodeName.match(IS_INLINE) !== null &&
+          !editor.selection.isMarker(node) &&
+          trim((<Element>node).innerHTML).length === 0 &&
+          !Dom.isOrContains(node, current)
         );
     };
 
-    function clearHTML(element: HTMLElement){
-        if(element.tagName.toLowerCase() === 'br'){
-            element.removeAttribute("style");
+    function clearHTML(element: HTMLElement) {
+        if (element.tagName.toLowerCase() === 'br') {
+            element.removeAttribute('style');
         }
-        if(element.tagName.toLowerCase() === 'p'){
-            if(element.children.length === 1) {
+        if (element.tagName.toLowerCase() === 'p') {
+            if (element.children.length === 1) {
                 let child = element.children[0];
-                if(child.tagName.toLowerCase()  === 'br' && element.textContent === ""){
+                if (child.tagName.toLowerCase() === 'br' && element.textContent === '') {
                     element.insertAdjacentHTML('afterend', '<br>');
                     element.remove();
                 }
@@ -218,139 +218,139 @@ export function cleanHTML(editor: Jodit) {
     }
 
     editor.events
-        .on('change afterSetMode afterInit mousedown keydown', debounce(() => {
-            if (!editor.isDestructed && editor.isEditorMode()) {
-                current = editor.selection.current();
+      .on('change afterSetMode afterInit mousedown keydown', debounce(() => {
+          if (!editor.isDestructed && editor.isEditorMode()) {
+              current = editor.selection.current();
 
-                const wysiwyg = document.querySelector('.jodit_wysiwyg');
-                if(wysiwyg){
-                    const allElements = wysiwyg.getElementsByTagName('*');
-                    for (let i = 0; i < allElements.length; i++) {
-                        const element = allElements[i];
-                        if (!(element instanceof HTMLElement)) {
-                            break;
-                        }
-                        clearHTML(element);
-                    }
-                }
+              const wysiwyg = document.querySelector('.jodit_wysiwyg');
+              if (wysiwyg) {
+                  const allElements = wysiwyg.getElementsByTagName('*');
+                  for (let i = 0; i < allElements.length; i++) {
+                      const element = allElements[i];
+                      if (!(element instanceof HTMLElement)) {
+                          break;
+                      }
+                      clearHTML(element);
+                  }
+              }
 
-                let node: Node | null = null,
-                    remove: Node[] = [],
-                    work: boolean = false,
-                    i: number =   0,
-                    replaceOldTags: {[key:string]: string} | false = editor.options.cleanHTML.replaceOldTags;
-
-
-                if (replaceOldTags && current) {
-                    const tags: string = Object.keys(replaceOldTags).join('|');
-                    if (editor.selection.isCollapsed()) {
-                        const oldParent: Node | false = Dom.closest(current, tags, editor.editor);
-                        if (oldParent) {
-                            const selInfo = editor.selection.save();
-                            const tagName: string = replaceOldTags[oldParent.nodeName.toLowerCase()] || replaceOldTags[oldParent.nodeName];
-                            Dom.replace(<HTMLElement>oldParent, tagName, true, false, editor.editorDocument);
-                            editor.selection.restore(selInfo);
-                        }
-                    }
-                }
-
-                const checkNode = (node: Element | Node | null): void => {
-                    if (node) {
-                        if (isRemovableNode(node)) {
-                            remove.push(node);
-                            return checkNode(node.nextSibling);
-                        }
-
-                        if (editor.options.cleanHTML.fillEmptyParagraph && Dom.isBlock(node) && Dom.isEmpty(node, /^(img|svg|canvas|input|textarea|form|br)$/)) {
-                            const br: HTMLBRElement = editor.editorDocument.createElement('br');
-                            node.appendChild(br);
-                        }
-
-                        if (allowTagsHash && allowTagsHash[node.nodeName] !== true) {
-                            if ((<Element>node).attributes && (<Element>node).attributes.length) {
-                                const removeAttrs: string[] = [];
-                                for (i = 0; i < (<Element>node).attributes.length; i += 1) {
-                                    if (!allowTagsHash[node.nodeName][(<Element>node).attributes[i].name] ||
-                                        (
-                                            allowTagsHash[node.nodeName][(<Element>node).attributes[i].name] !== true &&
-                                            allowTagsHash[node.nodeName][(<Element>node).attributes[i].name] !== (<Element>node).attributes[i].value
-                                        )
-                                    ) {
-                                        removeAttrs.push((<Element>node).attributes[i].name);
-                                    }
-                                }
-
-                                if (removeAttrs.length) {
-                                    work = true;
-                                }
-
-                                removeAttrs.forEach((attr: string) => {
-                                    (<Element>node).removeAttribute(attr);
-                                });
-                            }
-                        }
-
-                        checkNode(node.firstChild);
-                        checkNode(node.nextSibling);
-                    }
-                };
-
-                if (editor.editor.firstChild) {
-                    node = <Element>editor.editor.firstChild;
-                }
+              let node: Node | null                                 = null,
+                  remove: Node[]                                    = [],
+                  work: boolean                                     = false,
+                  i: number                                         = 0,
+                  replaceOldTags: { [key: string]: string } | false = editor.options.cleanHTML.replaceOldTags;
 
 
-                checkNode(node);
+              if (replaceOldTags && current) {
+                  const tags: string = Object.keys(replaceOldTags).join('|');
+                  if (editor.selection.isCollapsed()) {
+                      const oldParent: Node | false = Dom.closest(current, tags, editor.editor);
+                      if (oldParent) {
+                          const selInfo         = editor.selection.save();
+                          const tagName: string = replaceOldTags[oldParent.nodeName.toLowerCase()] || replaceOldTags[oldParent.nodeName];
+                          Dom.replace(<HTMLElement>oldParent, tagName, true, false, editor.editorDocument);
+                          editor.selection.restore(selInfo);
+                      }
+                  }
+              }
+
+              const checkNode = (node: Element | Node | null): void => {
+                  if (node) {
+                      if (isRemovableNode(node)) {
+                          remove.push(node);
+                          return checkNode(node.nextSibling);
+                      }
+
+                      if (editor.options.cleanHTML.fillEmptyParagraph && Dom.isBlock(node) && Dom.isEmpty(node, /^(img|svg|canvas|input|textarea|form|br)$/)) {
+                          const br: HTMLBRElement = editor.editorDocument.createElement('br');
+                          node.appendChild(br);
+                      }
+
+                      if (allowTagsHash && allowTagsHash[node.nodeName] !== true) {
+                          if ((<Element>node).attributes && (<Element>node).attributes.length) {
+                              const removeAttrs: string[] = [];
+                              for (i = 0; i < (<Element>node).attributes.length; i += 1) {
+                                  if (!allowTagsHash[node.nodeName][(<Element>node).attributes[i].name] ||
+                                    (
+                                      allowTagsHash[node.nodeName][(<Element>node).attributes[i].name] !== true &&
+                                      allowTagsHash[node.nodeName][(<Element>node).attributes[i].name] !== (<Element>node).attributes[i].value
+                                    )
+                                  ) {
+                                      removeAttrs.push((<Element>node).attributes[i].name);
+                                  }
+                              }
+
+                              if (removeAttrs.length) {
+                                  work = true;
+                              }
+
+                              removeAttrs.forEach((attr: string) => {
+                                  (<Element>node).removeAttribute(attr);
+                              });
+                          }
+                      }
+
+                      checkNode(node.firstChild);
+                      checkNode(node.nextSibling);
+                  }
+              };
+
+              if (editor.editor.firstChild) {
+                  node = <Element>editor.editor.firstChild;
+              }
 
 
-                remove.forEach((node: Node) => node.parentNode && node.parentNode.removeChild(node));
+              checkNode(node);
 
-                if (remove.length || work) {
-                    editor.events && editor.events.fire('syncho');
-                }
-            }
-        }, editor.options.cleanHTML.timeout))
-        // remove invisible chars if node has another chars
-        .on('keyup', () => {
-            if (editor.options.readonly) {
-                return;
-            }
 
-            const current: false | Node = editor.selection.current();
+              remove.forEach((node: Node) => node.parentNode && node.parentNode.removeChild(node));
 
-            if (current) {
-                const currentParagraph: Node | false = Dom.up(current, Dom.isBlock, editor.editor);
-                if (currentParagraph) {
-                    Dom.all(currentParagraph, (node: Node) => {
-                        if (node.nodeType === Node.TEXT_NODE) {
-                            if (node.nodeValue !== null && consts.INVISIBLE_SPACE_REG_EXP.test(node.nodeValue) && node.nodeValue.replace(consts.INVISIBLE_SPACE_REG_EXP, '').length !== 0) {
-                                node.nodeValue = node.nodeValue.replace(consts.INVISIBLE_SPACE_REG_EXP, '');
-                                if (node === current && editor.selection.isCollapsed()) {
-                                    editor.selection.setCursorAfter(node);
-                                }
-                            }
-                        }
-                    });
-                }
-            }
-        })
-        // remove invisible spaces then they already not need
-        // TODO refactor this and code above
-        // .on('keyup',  () => {
-        //     if (editor.selection.isCollapsed()) {
-        //         let node: Node | null = <Node | null> editor.selection.current();
-        //         if (node && node.nodeType === Node.TEXT_NODE && node.nodeValue !== consts.INVISIBLE_SPACE) {
-        //             console.log(node);
-        //             while (node = Dom.findInline(node, true, editor.editor)) {
-        //                 console.log(node);
-        //                 debugger
-        //                 if (node && node.nodeType === Node.TEXT_NODE && node.nodeValue && node.nodeValue.match(consts.INVISIBLE_SPACE_REG_EXP)) {
-        //                     node.nodeValue = node.nodeValue.replace(consts.INVISIBLE_SPACE_REG_EXP, '');
-        //                 }
-        //             }
-        //         }
-        //     }
-        // })
+              if (remove.length || work) {
+                  editor.events && editor.events.fire('syncho');
+              }
+          }
+      }, editor.options.cleanHTML.timeout))
+      // remove invisible chars if node has another chars
+      .on('keyup', () => {
+          if (editor.options.readonly) {
+              return;
+          }
+
+          const current: false | Node = editor.selection.current();
+
+          if (current) {
+              const currentParagraph: Node | false = Dom.up(current, Dom.isBlock, editor.editor);
+              if (currentParagraph) {
+                  Dom.all(currentParagraph, (node: Node) => {
+                      if (node.nodeType === Node.TEXT_NODE) {
+                          if (node.nodeValue !== null && consts.INVISIBLE_SPACE_REG_EXP.test(node.nodeValue) && node.nodeValue.replace(consts.INVISIBLE_SPACE_REG_EXP, '').length !== 0) {
+                              node.nodeValue = node.nodeValue.replace(consts.INVISIBLE_SPACE_REG_EXP, '');
+                              if (node === current && editor.selection.isCollapsed()) {
+                                  editor.selection.setCursorAfter(node);
+                              }
+                          }
+                      }
+                  });
+              }
+          }
+      })
+      // remove invisible spaces then they already not need
+      // TODO refactor this and code above
+      // .on('keyup',  () => {
+      //     if (editor.selection.isCollapsed()) {
+      //         let node: Node | null = <Node | null> editor.selection.current();
+      //         if (node && node.nodeType === Node.TEXT_NODE && node.nodeValue !== consts.INVISIBLE_SPACE) {
+      //             console.log(node);
+      //             while (node = Dom.findInline(node, true, editor.editor)) {
+      //                 console.log(node);
+      //                 debugger
+      //                 if (node && node.nodeType === Node.TEXT_NODE && node.nodeValue && node.nodeValue.match(consts.INVISIBLE_SPACE_REG_EXP)) {
+      //                     node.nodeValue = node.nodeValue.replace(consts.INVISIBLE_SPACE_REG_EXP, '');
+      //                 }
+      //             }
+      //         }
+      //     }
+      // })
       .on('beforeCommand', (command: string) => {
           if (command === 'removeformathtml') {
               let selectionNode = getSelectionNode();
@@ -361,97 +361,96 @@ export function cleanHTML(editor: Jodit) {
               })
           }
       })
-      .on('afterCommand',  (command: string) => {
-            let sel: Select = editor.selection,
-                hr: HTMLHRElement | null,
-                node: Node | null;
+      .on('afterCommand', (command: string) => {
+          let sel: Select = editor.selection,
+              hr: HTMLHRElement | null,
+              node: Node | null;
 
-            switch (command.toLowerCase()) {
-                case 'inserthorizontalrule':
-                hr = editor.editor.querySelector('hr[id=null]');
-                if (hr) {
-                    node = <Node | null>Dom.next(hr, Dom.isBlock, editor.editor, false);
-                    if (!node) {
-                        node = editor.editorDocument.createElement(editor.options.enter);
-                        if (node) {
-                            Dom.after(hr, <HTMLElement>node)
-                        }
-                    }
-                    sel.setCursorIn(node);
-                }
-                break;
-                case 'removeformat':
-                    node = <Node>sel.current();
-                    const clean: (elm: Node) => false | void = (elm: Node) => {
-                        switch (elm.nodeType) {
-                            case Node.ELEMENT_NODE:
-                                Dom.each(elm, clean);
-                                if (elm.nodeName === 'FONT') {
-                                    Dom.unwrap(elm);
-                                } else {
-                                    // clean some "style" attributes in selected range
-                                    [].slice.call((<Element>elm).attributes).forEach((attr: Attr) => {
-                                        if (['src', 'href', 'rel', 'content'].indexOf(attr.name.toLowerCase()) === -1) {
-                                            (<Element>elm).removeAttribute(attr.name);
-                                        }
-                                    });
-                                    normalizeNode(elm);
-                                }
-                                break;
-                            case Node.TEXT_NODE:
-                                if (editor.options.cleanHTML.replaceNBSP && elm.nodeType === Node.TEXT_NODE && elm.nodeValue !== null && elm.nodeValue.match(consts.SPACE_REG_EXP)) {
-                                    elm.nodeValue = elm.nodeValue.replace(consts.SPACE_REG_EXP, ' ');
-                                }
-                                break;
-                            default:
-                                elm.parentNode && elm.parentNode.removeChild(elm);
-                        }
-                    };
+          switch (command.toLowerCase()) {
+              case 'inserthorizontalrule':
+                  hr = editor.editor.querySelector('hr[id=null]');
+                  if (hr) {
+                      node = <Node | null>Dom.next(hr, Dom.isBlock, editor.editor, false);
+                      if (!node) {
+                          node = editor.editorDocument.createElement(editor.options.enter);
+                          if (node) {
+                              Dom.after(hr, <HTMLElement>node)
+                          }
+                      }
+                      sel.setCursorIn(node);
+                  }
+                  break;
+              case 'removeformat':
+                  node                                     = <Node>sel.current();
+                  const clean: (elm: Node) => false | void = (elm: Node) => {
+                      switch (elm.nodeType) {
+                          case Node.ELEMENT_NODE:
+                              Dom.each(elm, clean);
+                              if (elm.nodeName === 'FONT') {
+                                  Dom.unwrap(elm);
+                              } else {
+                                  // clean some "style" attributes in selected range
+                                  [].slice.call((<Element>elm).attributes).forEach((attr: Attr) => {
+                                      if (['src', 'href', 'rel', 'content'].indexOf(attr.name.toLowerCase()) === -1) {
+                                          (<Element>elm).removeAttribute(attr.name);
+                                      }
+                                  });
+                                  normalizeNode(elm);
+                              }
+                              break;
+                          case Node.TEXT_NODE:
+                              if (editor.options.cleanHTML.replaceNBSP && elm.nodeType === Node.TEXT_NODE && elm.nodeValue !== null && elm.nodeValue.match(consts.SPACE_REG_EXP)) {
+                                  elm.nodeValue = elm.nodeValue.replace(consts.SPACE_REG_EXP, ' ');
+                              }
+                              break;
+                          default:
+                              elm.parentNode && elm.parentNode.removeChild(elm);
+                      }
+                  };
 
-                    if (!sel.isCollapsed()) {
-                        editor.selection.eachSelection((current: Node): false | void => {
-                            clean(current);
-                        });
-                    } else {
-                        while (node && node.nodeType !== Node.ELEMENT_NODE && node !== editor.editor) {
-                            clean(node);
-                            if (node) {
-                                node = node.parentNode;
-                            }
-                        }
-                    }
+                  if (!sel.isCollapsed()) {
+                      editor.selection.eachSelection((current: Node): false | void => {
+                          clean(current);
+                      });
+                  } else {
+                      while (node && node.nodeType !== Node.ELEMENT_NODE && node !== editor.editor) {
+                          clean(node);
+                          if (node) {
+                              node = node.parentNode;
+                          }
+                      }
+                  }
 
-                break;
-            }
-        });
+                  break;
+          }
+      });
 }
 
-function getSelectionNode(): HTMLElement[] {
-    function getAllWithinRangeParent(range: any) {
-        if (range.commonAncestorContainer.getElementsByTagName) {
-            return range.commonAncestorContainer.getElementsByTagName("*")
+export function getSelectionNode(): HTMLElement[] {
+    function convert(elementsByTagName: NodeListOf<Element>): HTMLElement[] {
+        const allSelected = [];
+        for (let i = 0; elementsByTagName.length > i; i++) {
+            let element = elementsByTagName[i];
+            if (selection.containsNode(element, true)) {
+                allSelected.push(element as HTMLElement)
+            }
+        }
+        return allSelected;
+    }
+
+    function getAllWithinRangeParent(range: any): HTMLElement[] {
+        console.log(range);
+        if (range.startContainer.data) {
+            let parentElement: HTMLElement        = range.startContainer.parentElement;
+            let elementsByTagName: NodeListOf<Element> = parentElement.getElementsByTagName('*');
+            return [parentElement, ...convert(elementsByTagName)];
         } else {
-            let parentNode = range.commonAncestorContainer.parentNode;
-            let span = document.createElement('span');
-            span.innerText = parentNode.innerText;
-            parentNode.innerText = '';
-            parentNode.append(span);
-            return range.commonAncestorContainer.getElementsByTagName("*")
+            let elementsByTagName = range.commonAncestorContainer.getElementsByTagName('*');
+            return convert(elementsByTagName);
         }
     }
 
     const selection = window.getSelection();
-    const range = selection.getRangeAt(0);
-    const allWithinRangeParent = getAllWithinRangeParent(range);
-
-    const allSelected = [];
-    let i = 0, el;
-    for (; el = allWithinRangeParent[i]; i++) {
-        if (selection.containsNode(el, true)) {
-            allSelected.push(el)
-        }
-    }
-
-
-    return allSelected;
+    const range     = selection.getRangeAt(0);
+    return getAllWithinRangeParent(range);
 }
