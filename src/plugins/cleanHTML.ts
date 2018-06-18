@@ -208,6 +208,20 @@ export function cleanHTML(editor: Jodit) {
             if (!editor.isDestructed && editor.isEditorMode()) {
                 current = editor.selection.current();
 
+                const element = document.querySelector('.jodit_wysiwyg');
+                if(element){
+                    const children = element.children;
+                    for (let i = 0; i < children.length; i++) {
+                        const child = children[i];
+                        if (!(child instanceof HTMLElement)) {
+                            return;
+                        }
+                        if(child.tagName.toLowerCase() === 'br'.toLowerCase()){
+                            child.removeAttribute("style");
+                        }
+                    }
+                }
+
                 let node: Node | null = null,
                     remove: Node[] = [],
                     work: boolean = false,
