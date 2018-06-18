@@ -4,13 +4,13 @@
  * Copyright 2013-2018 Valeriy Chupurnov https://xdsoft.net
  */
 
-import {Jodit} from '../Jodit';
-import {Config} from '../Config'
+import { Jodit } from '../Jodit';
+import { Config } from '../Config'
 import * as consts from '../constants';
-import {cleanFromWord, debounce, normalizeNode, trim} from "../modules/Helpers";
-import {Dom} from "../modules/Dom";
-import {Select} from "../modules/Selection";
-import {IS_INLINE} from "../constants";
+import { IS_INLINE } from '../constants';
+import { cleanFromWord, debounce, normalizeNode, trim } from '../modules/Helpers';
+import { Dom } from '../modules/Dom';
+import { Select } from '../modules/Selection';
 
 /**
  * @property {object} cleanHTML {@link cleanHTML|cleanHTML}'s options
@@ -86,7 +86,7 @@ Config.prototype.cleanHTML = {
 };
 
 Config.prototype.controls.eraser = {
-    command: 'removeFormat',
+    command: 'removeFormatHTML',
     tooltip: 'Clear Formatting'
 };
 
@@ -339,7 +339,17 @@ export function cleanHTML(editor: Jodit) {
         //         }
         //     }
         // })
-        .on('afterCommand',  (command: string) => {
+      .on('beforeCommand', (command: string) => {
+          if (command === 'removeformathtml') {
+              let selectionNode = getSelectionNode();
+              selectionNode.forEach((element) => {
+                  if (element.tagName.toLowerCase() !== 'a') {
+                      element.removeAttribute('style');
+                  }
+              })
+          }
+      })
+      .on('afterCommand',  (command: string) => {
             let sel: Select = editor.selection,
                 hr: HTMLHRElement | null,
                 node: Node | null;
@@ -402,4 +412,34 @@ export function cleanHTML(editor: Jodit) {
                 break;
             }
         });
+}
+
+function getSelectionNode(): HTMLElement[] {
+    function getAllWithinRangeParent(range: any) {
+        if (range.commonAncestorContainer.getElementsByTagName) {
+            return range.commonAncestorContainer.getElementsByTagName("*")
+        } else {
+            let parentNode = range.commonAncestorContainer.parentNode;
+            let span = document.createElement('span');
+            span.innerText = parentNode.innerText;
+            parentNode.innerText = '';
+            parentNode.append(span);
+            return range.commonAncestorContainer.getElementsByTagName("*")
+        }
+    }
+
+    const selection = window.getSelection();
+    const range = selection.getRangeAt(0);
+    const allWithinRangeParent = getAllWithinRangeParent(range);
+
+    const allSelected = [];
+    let i = 0, el;
+    for (; el = allWithinRangeParent[i]; i++) {
+        if (selection.containsNode(el, true)) {
+            allSelected.push(el)
+        }
+    }
+
+
+    return allSelected;
 }
