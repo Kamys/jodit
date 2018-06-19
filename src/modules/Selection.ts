@@ -838,9 +838,11 @@ export class Select extends Component {
         if (cssRules['backgroundColor']) {
             document.execCommand('BackColor', false, cssRules['backgroundColor']);
         }
+        this.save();
         if (cssRules['fontSize']) {
             setSize(cssRules['fontSize']);
         }
+        this.removeMarkers();
     };
 }
 
@@ -852,34 +854,49 @@ function setSize(size: string) {
     });
 }
 
-export function getSelectionNode(): HTMLElement[] {
-    function convert(elementsByTagName: NodeListOf<Element>): HTMLElement[] {
-        const allSelected = [];
-        for (let i = 0; elementsByTagName.length > i; i++) {
-            let element = elementsByTagName[i];
-            allSelected.push(element as HTMLElement)
-        }
-        return allSelected;
+function convert(elementsByTagName: NodeListOf<Element>): HTMLElement[] {
+    const allSelected = [];
+    for (let i = 0; elementsByTagName.length > i; i++) {
+        let element = elementsByTagName[i];
+        allSelected.push(element as HTMLElement)
     }
+    return allSelected;
+}
 
-    function getAllWithinRangeParent(range: any): HTMLElement[] {
-        console.log(range);
-        if (range.startContainer.data) {
-            if(range.endContainer.parentElement === range.startContainer.parentElement) {
-                let parentElement: HTMLElement        = range.startContainer.parentElement;
-                let elementsByTagName: NodeListOf<Element> = parentElement.getElementsByTagName('*');
-                return [parentElement, ...convert(elementsByTagName)];
-            } else {
-                let elementsByTagName = range.endContainer.parentElement.getElementsByTagName('*');
-                return convert(elementsByTagName);
-            }
-        } else {
-            let elementsByTagName = range.commonAncestorContainer.getElementsByTagName('*');
-            return convert(elementsByTagName);
-        }
-    }
-
+function getAllWithinRangeParent(): HTMLElement[] {
     const selection = window.getSelection();
     const range     = selection.getRangeAt(0);
-    return getAllWithinRangeParent(range);
+    /*this.jodit.selection.save();*/
+
+    const wysiwyg = document.querySelector('.jodit_wysiwyg');
+    const selectElement: HTMLElement[] = [];
+    if(wysiwyg){
+        let children  = convert(wysiwyg.children);
+        let isStart;
+        children.forEach((element: HTMLElement) => {
+            let elementsByTagName = convert(element.getElementsByTagName('*'));
+            isStart               = elementsByTagName.some(el => isMarker(el, true));
+            if(isStart){
+                selectElement.push(element);
+            }
+            isStart = elementsByTagName.some(el => isMarker(el, false));
+        })
+    }
+    console.log('Result = ',selectElement);
+    return selectElement;
 }
+
+function isMarker(element: HTMLElement, isStart: boolean): boolean {
+    const markerName = isStart ? 'star' : 'end';
+    let joditSelectionMarker = element.dataset.jodit_selection_marker;
+    if(joditSelectionMarker){
+        return joditSelectionMarker === markerName
+    }
+    return false;
+}
+
+export function getSelectionNode(): HTMLElement[] {
+    return getAllWithinRangeParent();
+}
+
+(window as any).getAllWithinRangeParent = getAllWithinRangeParent;

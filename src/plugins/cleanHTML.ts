@@ -426,31 +426,45 @@ export function cleanHTML(editor: Jodit) {
       });
 }
 
-export function getSelectionNode(): HTMLElement[] {
-    function convert(elementsByTagName: NodeListOf<Element>): HTMLElement[] {
-        const allSelected = [];
-        for (let i = 0; elementsByTagName.length > i; i++) {
-            let element = elementsByTagName[i];
-            if (selection.containsNode(element, true)) {
-                allSelected.push(element as HTMLElement)
-            }
-        }
-        return allSelected;
-    }
+function setSize(size: string) {
+    let selectionNode = getSelectionNode();
 
-    function getAllWithinRangeParent(range: any): HTMLElement[] {
-        console.log(range);
-        if (range.startContainer.data) {
-            let parentElement: HTMLElement        = range.startContainer.parentElement;
-            let elementsByTagName: NodeListOf<Element> = parentElement.getElementsByTagName('*');
-            return [parentElement, ...convert(elementsByTagName)];
-        } else {
-            let elementsByTagName = range.commonAncestorContainer.getElementsByTagName('*');
-            return convert(elementsByTagName);
-        }
-    }
+    selectionNode.forEach(element => {
+        element.style.fontSize = size;
+    });
+}
 
+function convert(elementsByTagName: NodeListOf<Element>): HTMLElement[] {
+    const allSelected = [];
+    for (let i = 0; elementsByTagName.length > i; i++) {
+        let element = elementsByTagName[i];
+        allSelected.push(element as HTMLElement)
+    }
+    return allSelected;
+}
+
+function getAllWithinRangeParent(): HTMLElement[] {
     const selection = window.getSelection();
     const range     = selection.getRangeAt(0);
-    return getAllWithinRangeParent(range);
+
+    console.log(range);
+    const wysiwyg = document.querySelector('.jodit_wysiwyg');
+    const selectElement: HTMLElement[] = [];
+    if(wysiwyg){
+        let children  = convert(wysiwyg.children);
+        let isStart;
+        children.forEach((element: HTMLElement) => {
+            isStart = convert(element.getElementsByTagName('*')).some(el => el === range.startContainer);
+            if(isStart){
+                selectElement.push(element);
+            }
+            isStart = !convert(element.getElementsByTagName('*')).some(el => el === range.endContainer);
+        })
+    }
+    console.log(selectElement);
+    return selectElement;
+}
+
+export function getSelectionNode(): HTMLElement[] {
+    return getAllWithinRangeParent();
 }
