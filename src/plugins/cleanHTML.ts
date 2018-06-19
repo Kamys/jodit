@@ -353,7 +353,7 @@ export function cleanHTML(editor: Jodit) {
       // })
       .on('beforeCommand', (command: string) => {
           if (command === 'removeformathtml') {
-              let selectionNode = getSelectionNode();
+              let selectionNode = convert((document.querySelector('.jodit_wysiwyg') as any).getElementsByTagName('*'));
               selectionNode.forEach((element) => {
                   if (element.tagName.toLowerCase() !== 'a') {
                       element.removeAttribute('style');
@@ -426,17 +426,17 @@ export function cleanHTML(editor: Jodit) {
       });
 }
 
-export function getSelectionNode(): HTMLElement[] {
-    function convert(elementsByTagName: NodeListOf<Element>): HTMLElement[] {
-        const allSelected = [];
-        for (let i = 0; elementsByTagName.length > i; i++) {
-            let element = elementsByTagName[i];
-            if (selection.containsNode(element, true)) {
-                allSelected.push(element as HTMLElement)
-            }
-        }
-        return allSelected;
+function convert(elementsByTagName: NodeListOf<Element>): HTMLElement[] {
+    const allSelected = [];
+    for (let i = 0; elementsByTagName.length > i; i++) {
+        let element = elementsByTagName[i];
+        allSelected.push(element as HTMLElement)
     }
+    return allSelected;
+}
+
+export function getSelectionNode(): HTMLElement[] {
+
 
     function getAllWithinRangeParent(range: any): HTMLElement[] {
         console.log(range);
